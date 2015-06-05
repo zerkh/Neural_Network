@@ -1,0 +1,13 @@
+#ifndef PARAMETER_H
+#define PARAMETER_H
+
+#include <iostream>
+using namespace std;
+
+//≤Œ ˝¿‡
+class Parameter
+{
+
+};
+
+#endif
