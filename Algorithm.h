@@ -45,6 +45,22 @@ inline double tanh(Vector* vec, int i)
 
 }
 
+inline double sigmoid(Vector* vec, int i)
+{
+	double x = vec->getValue(0, i);
+
+	double result = 1 / (exp(-x) + 1);
+
+	return result;
+}
+
+inline double sigmoid(double x)
+{
+	double result = 1 / (exp(-x) + 1);
+
+	return result;
+}
+
 //获取高斯随机数
 /*
 inline double gaussRand()
