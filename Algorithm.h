@@ -117,6 +117,13 @@ inline double loss(double z, double y)
 	return result;
 }
 
+inline double lossLog(double z, double y)
+{
+	double result = -(y*log(z) + (1-y)*log(1-z));
+
+	return result;
+}
+
 inline double softmax(Vector* layer, int ind)
 {
 	double result = 0;

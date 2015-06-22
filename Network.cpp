@@ -6,8 +6,8 @@ Network::Network(Parameter* para, WordVec* words)
 	this->dimOfLayers = new int[amountOfLayer];
 	this->words = words;
 	this->lambda = 0.001;
-	this->alpha = 0.6;
-	this->iterTimes = 60;
+	this->alpha = 0.25;
+	this->iterTimes = 100;
 	this->threshold = 1e-3;
 	this->is_log = true;
 	this->log_file.open("log_file", ios::out);
@@ -132,7 +132,7 @@ void Network::get_data(string filename)
 		//extract negative sample
 		else if((pos = line.find(negative)) != -1)
 		{
-			y = -1;
+			y = 0;
 
 			Vector* vec = new Vector(1, this->dimOfLayers[0]);
 			stringstream strin;
@@ -180,7 +180,7 @@ void Network::get_data(string filename)
 		//test data
 		else
 		{
-			y = 0;
+			y = -1;
 
 			Vector* vec = new Vector(1, this->dimOfLayers[0]);
 			stringstream strin;
@@ -378,7 +378,7 @@ void Network::train(Parameter* para)
 				output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 			}
 
-			pre_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+			pre_Loss = lossLog(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 
 			if(is_log)
 			{
@@ -419,7 +419,7 @@ void Network::train(Parameter* para)
 			}
 
 			//err_term of output layer
-			err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0)-v_train_data[j].second) * (sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
+			err_term[0]->setValue(0, 0, ((1-v_train_data[j].second)/(1-output_layer->getValue(0, 0)) - v_train_data[j].second/output_layer->getValue(0,0)) * (sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
 			//err_term of hidden layer
 			for(int i = 0; i < err_term[1]->getCol(); i++)
@@ -580,7 +580,7 @@ void Network::train(Parameter* para)
 							output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 						}
 
-						add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						add_Loss = lossLog(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 
 						//g(theta-10^5)
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)-2*pow(10, -5));
@@ -610,7 +610,7 @@ void Network::train(Parameter* para)
 							output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 						}
 
-						min_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						min_Loss = lossLog(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)+pow(10, -5));
 
 						double g = (add_Loss-min_Loss) / (2*pow(10, -5));
@@ -623,7 +623,7 @@ void Network::train(Parameter* para)
 							err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 						}
 
-						err_term[0]->setValue(0, 0, (output_layer->getValue(0,0)-v_train_data[j].second)*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
+						err_term[0]->setValue(0, 0, ((1-v_train_data[j].second)/(1-output_layer->getValue(0, 0)) - v_train_data[j].second/output_layer->getValue(0,0))*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
 						for(int i = 0; i < err_term[1]->getCol(); i++)
 						{
@@ -717,7 +717,7 @@ void Network::train(Parameter* para)
 							output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 						}
 
-						add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						add_Loss = lossLog(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 
 						//g(theta-10^-4)
 						weights_b[lay]->setValue(row, col, weights_b[lay]->getValue(row, col)-2*pow(10, -5));
@@ -747,7 +747,7 @@ void Network::train(Parameter* para)
 							output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 						}
 
-						min_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						min_Loss = lossLog(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 						weights_b[lay]->setValue(row, col, weights_b[lay]->getValue(row, col)+pow(10, -5));
 
 						double g = (add_Loss-min_Loss) / (2*pow(10, -5));
@@ -760,7 +760,7 @@ void Network::train(Parameter* para)
 							err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 						}
 
-						err_term[0]->setValue(0, 0, (output_layer->getValue(0,0)-v_train_data[j].second)*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
+						err_term[0]->setValue(0, 0, ((1-v_train_data[j].second)/(1-output_layer->getValue(0, 0)) - v_train_data[j].second/output_layer->getValue(0,0))*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
 						for(int i = 0; i < err_term[1]->getCol(); i++)
 						{
@@ -850,7 +850,7 @@ void Network::train(Parameter* para)
 					output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 				}
 
-				add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+				add_Loss = lossLog(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 
 				//g(theta-10^-4)
 				v_train_data[j].first->setValue(0, col, v_train_data[j].first->getValue(0, col) - 2*pow(10, -5));
@@ -880,7 +880,7 @@ void Network::train(Parameter* para)
 					output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 				}
 
-				min_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+				min_Loss = lossLog(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 				v_train_data[j].first->setValue(0, col, v_train_data[j].first->getValue(0, col)+pow(10, -5));
 
 				double g = (add_Loss-min_Loss) / (2*pow(10, -5));
@@ -893,7 +893,7 @@ void Network::train(Parameter* para)
 					err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 				}
 
-				err_term[0]->setValue(0, 0, (output_layer->getValue(0,0)-v_train_data[j].second)*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
+				err_term[0]->setValue(0, 0, ((1-v_train_data[j].second)/(1-output_layer->getValue(0, 0)) - v_train_data[j].second/output_layer->getValue(0,0))*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
 				for(int i = 0; i < err_term[1]->getCol(); i++)
 				{
@@ -1054,7 +1054,7 @@ void Network::test(Parameter* para)
 			output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 		}
 
-		if(output_layer->getValue(0, 0) > 0)
+		if(output_layer->getValue(0, 0) > 0.5)
 		{
 			if(v_train_data[j].second == 1)
 			{
@@ -1063,18 +1063,14 @@ void Network::test(Parameter* para)
 		}
 		else
 		{
-			if(v_train_data[j].second == -1)
+			if(v_train_data[j].second == 0)
 			{
 				true_count++;
 			}
 		}
 
 		fout << "Data " << j << ":" << endl;
-		fout << output_layer->getValue(0, 0) << "\t\t" << v_train_data[j].second << endl;
-
-		//screen
-		cout << "Data " << j << ":" << endl;
-		cout << output_layer->getValue(0, 0) << "\t\t" << v_train_data[j].second << endl;
+		fout << output_layer->getValue(0, 0) << "\t\t" << v_train_data[j].second  << "\t\t" << true_count << endl;
 
 		delete hidden_layer;
 		delete pre_hidden_layer;
