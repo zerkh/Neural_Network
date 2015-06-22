@@ -337,7 +337,7 @@ void Network::train(Parameter* para)
 			Vector* output_layer;
 			Vector* pre_hidden_layer;
 			Vector* pre_output_layer;
-			double pre_Loss = -1;
+			double pre_Loss = 0;
 
 			if(is_log)
 			{
