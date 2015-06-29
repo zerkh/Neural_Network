@@ -6,8 +6,8 @@ Network::Network(Parameter* para, WordVec* words)
 	this->dimOfLayers = new int[amountOfLayer];
 	this->words = words;
 	this->lambda = 0.001;
-	this->alpha = 0.25;
-	this->iterTimes = 100;
+	this->alpha = 0.6;
+	this->iterTimes = 200;
 	this->threshold = 1e-3;
 	this->is_log = true;
 	this->log_file.open("log_file", ios::out);
@@ -326,7 +326,7 @@ void Network::train(Parameter* para)
 			}
 		}
 
-		double trueCount = 0;
+		int trueCount = 0;
 		int size = v_train_data.size();
 
 		//遍历一遍数据
@@ -378,7 +378,8 @@ void Network::train(Parameter* para)
 				output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 			}
 
-			pre_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+			//pre_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+			pre_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second);
 
 			if(is_log)
 			{
@@ -392,7 +393,7 @@ void Network::train(Parameter* para)
 				log_file << "A of output layer:" << endl;
 				for(int i = 0; i < output_layer->getCol(); i++)
 				{
-					log_file << output_layer->getValue(0, i) << " ";
+					log_file << output_layer->getValue(0, i) << " " << v_train_data[j].second;
 				}
 				log_file << endl;
 
@@ -403,11 +404,11 @@ void Network::train(Parameter* para)
 				}
 			}
 
-			if(output_layer->getValue(0, 0) > 0 && v_train_data[j].second == 1)
+			if(output_layer->getValue(0, 0) > 0.5 && v_train_data[j].second == 1)
 			{
 				trueCount++;
 			}
-			else if(output_layer->getValue(0, 0) < 0 && v_train_data[j].second == -1)
+			else if(output_layer->getValue(0, 0) < 0.5 && v_train_data[j].second == 0)
 			{
 				trueCount++;
 			}
@@ -490,7 +491,8 @@ void Network::train(Parameter* para)
 			{
 				for(int col = 0; col < der_Weights[i]->getCol(); col++)
 				{
-					weights[i]->setValue(row, col, weights[i]->getValue(row,col) - alpha*(der_Weights[i]->getValue(row, col)/v_train_data.size() + lambda*weights[i]->getValue(row,col)));
+					weights[i]->setValue(row, col, weights[i]->getValue(row,col) - alpha*(der_Weights[i]->getValue(row, col)/v_train_data.size()));
+					//weights[i]->setValue(row, col, weights[i]->getValue(row,col) - alpha*(der_Weights[i]->getValue(row, col)/v_train_data.size() + lambda*weights[i]->getValue(row,col)));
 				}
 			}
 
@@ -507,7 +509,7 @@ void Network::train(Parameter* para)
 		}
 
 		log_file << "True count: " << trueCount << endl;
-		log_file << count << " Accuary:" << trueCount/(double)v_train_data.size() << endl;
+		log_file << count << " Accuary:" << (double)trueCount/(double)v_train_data.size() << endl;
 
 		if(count == this->iterTimes)
 		{		 
@@ -525,7 +527,9 @@ void Network::train(Parameter* para)
 
 			for(int col = 0; col < this->dimOfLayers[0]; col++)
 			{
+				log_file << m_it->second[col] << endl;
 				m_it->second[col] -= (weights_i->getValue(0, col)/posNote[j].size());
+				log_file << m_it->second[col] << endl;
 			}
 		}
 	}
@@ -580,7 +584,8 @@ void Network::train(Parameter* para)
 							output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 						}
 
-						add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						//add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second);
 
 						//g(theta-10^5)
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)-2*pow(10, -5));
@@ -610,7 +615,8 @@ void Network::train(Parameter* para)
 							output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
 						}
 
-						min_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						//min_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
+						min_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second);
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)+pow(10, -5));
 
 						double g = (add_Loss-min_Loss) / (2*pow(10, -5));
@@ -645,7 +651,8 @@ void Network::train(Parameter* para)
 						{
 							for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
 							{
-								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1) + lambda*weights[0]->getValue(row1,col1));
+								//der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1) + lambda*weights[0]->getValue(row1,col1));
+								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1));
 							}
 						}
 
@@ -653,7 +660,8 @@ void Network::train(Parameter* para)
 						{
 							for(int col1 = 0; col1 < der_Weights[1]->getCol(); col1++)
 							{
-								der_Weights[1]->setValue(row1, col1, err_term[0]->getValue(0, row1) * hidden_layer->getValue(0, col1) + lambda*weights[1]->getValue(row1,col1));
+								//der_Weights[1]->setValue(row1, col1, err_term[0]->getValue(0, row1) * hidden_layer->getValue(0, col1) + lambda*weights[1]->getValue(row1,col1));
+								der_Weights[1]->setValue(row1, col1, err_term[0]->getValue(0, row1) * hidden_layer->getValue(0, col1));
 							}
 						}
 
@@ -822,7 +830,7 @@ void Network::train(Parameter* para)
 				double add_Loss = -1;
 
 
-				//g(theta-10^+4)
+				//g(theta-10^+5)
 				v_train_data[j].first->setValue(0, col, v_train_data[j].first->getValue(0, col)+pow(10, -5));
 
 				pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
@@ -852,7 +860,7 @@ void Network::train(Parameter* para)
 
 				add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 
-				//g(theta-10^-4)
+				//g(theta-10^-5)
 				v_train_data[j].first->setValue(0, col, v_train_data[j].first->getValue(0, col) - 2*pow(10, -5));
 				pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
 
