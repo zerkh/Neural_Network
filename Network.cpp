@@ -462,7 +462,7 @@ void Network::train(Parameter* para)
 			for(int i = 0; i < err_term[1]->getCol(); i++)
 			{
 				double result = 0;
-				result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+				result += err_term[0]->getValue(0, 0) * weights[0]->getValue(0, i);
 				err_term[1]->setValue(0, i, result);
 				der_Input->setValue(0, i, result);
 			}
@@ -721,7 +721,7 @@ void Network::train(Parameter* para)
 						for(int i = 0; i < err_term[1]->getCol(); i++)
 						{
 							double result = 0;
-							result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+							result += err_term[0]->getValue(0, 0) * weights[0]->getValue(0, i);
 							err_term[1]->setValue(0, i, result);
 							der_Input->setValue(0, i, result);
 						}
@@ -925,7 +925,7 @@ void Network::train(Parameter* para)
 						for(int i = 0; i < err_term[1]->getCol(); i++)
 						{
 							double result = 0;
-							result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+							result += err_term[0]->getValue(0, 0) * weights[0]->getValue(0, i);
 							err_term[1]->setValue(0, i, result);
 							der_Input->setValue(0, i, result);
 						}
@@ -1124,7 +1124,7 @@ void Network::train(Parameter* para)
 				for(int i = 0; i < err_term[1]->getCol(); i++)
 				{
 					double result = 0;
-					result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+					result += err_term[0]->getValue(0, 0) * weights[0]->getValue(0, i);
 					err_term[1]->setValue(0, i, result);
 					der_Input->setValue(0, i, result);
 				}
