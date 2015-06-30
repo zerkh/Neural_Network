@@ -306,24 +306,24 @@ void Network::train(Parameter* para)
 				log_file << endl;
 			}
 
-			log_file << "Weights 2:" << endl;
-			for(int row = 0; row < weights[1]->getRow(); row++)
-			{
-				for(int col = 0; col < weights[1]->getCol(); col++)
-				{
-					log_file << weights[1]->getValue(row, col) << " ";
-				}
-				log_file << endl;
-			}
-			log_file << "b 2:" << endl;
-			for(int row = 0; row < weights_b[1]->getRow(); row++)
-			{
-				for(int col = 0; col < weights_b[1]->getCol(); col++)
-				{
-					log_file << weights_b[1]->getValue(row, col) << " ";
-				}
-				log_file << endl;
-			}
+			//log_file << "Weights 2:" << endl;
+			//for(int row = 0; row < weights[1]->getRow(); row++)
+			//{
+			//	for(int col = 0; col < weights[1]->getCol(); col++)
+			//	{
+			//		log_file << weights[1]->getValue(row, col) << " ";
+			//	}
+			//	log_file << endl;
+			//}
+			//log_file << "b 2:" << endl;
+			//for(int row = 0; row < weights_b[1]->getRow(); row++)
+			//{
+			//	for(int col = 0; col < weights_b[1]->getCol(); col++)
+			//	{
+			//		log_file << weights_b[1]->getValue(row, col) << " ";
+			//	}
+			//	log_file << endl;
+			//}
 		}
 
 		int trueCount = 0;
@@ -1245,9 +1245,9 @@ void Network::test(Parameter* para)
 
 	for(int j = 0; j < v_train_data.size(); j++)
 	{
-		Vector* hidden_layer;
+		//Vector* hidden_layer;
 		Vector* output_layer;
-		Vector* pre_hidden_layer;
+		//Vector* pre_hidden_layer;
 		Vector* pre_output_layer;
 		Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 
@@ -1258,25 +1258,38 @@ void Network::test(Parameter* para)
 			input_layer->setValue(0, col, v_train_data[j].first->getValue(0, col) - weights_i->getValue(0, col));
 		}
 
-		//hidden layer
-		pre_hidden_layer = input_layer->Multiply(weights[0], 1);
-		//transpos delete
-		for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-		{
-			pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-		}
-		hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-		for(int i = 0; i < hidden_layer->getCol(); i++)
-		{
-			hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-		}
+		////hidden layer
+		//pre_hidden_layer = input_layer->Multiply(weights[0], 1);
+		////transpos delete
+		//for(int i = 0; i < pre_hidden_layer->getCol(); i++)
+		//{
+		//	pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
+		//}
+		//hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
+		//for(int i = 0; i < hidden_layer->getCol(); i++)
+		//{
+		//	hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
+		//}
 
-		//output layer
-		pre_output_layer = hidden_layer->Multiply(weights[1], 1);
-		//transpos delete
+		////output layer
+		//pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+		////transpos delete
+		//for(int i = 0; i < pre_output_layer->getCol(); i++)
+		//{
+		//	pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+		//}
+		//output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
+		//for(int i = 0; i < output_layer->getCol(); i++)
+		//{
+		//	output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
+		//}
+
+		//ÎÞÒþ²ã
+		pre_output_layer = input_layer->Multiply(weights[0], 1);
+
 		for(int i = 0; i < pre_output_layer->getCol(); i++)
 		{
-			pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+			pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 		}
 		output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 		for(int i = 0; i < output_layer->getCol(); i++)
@@ -1302,8 +1315,8 @@ void Network::test(Parameter* para)
 		fout << "Data " << j << ":" << endl;
 		fout << output_layer->getValue(0, 0) << "\t\t" << v_train_data[j].second  << "\t\t" << true_count << endl;
 
-		delete hidden_layer;
-		delete pre_hidden_layer;
+		//delete hidden_layer;
+		//delete pre_hidden_layer;
 		delete output_layer;
 		delete pre_output_layer;
 	}
