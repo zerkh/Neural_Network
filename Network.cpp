@@ -729,9 +729,9 @@ void Network::train(Parameter* para)
 						//求导
 						for(int i = 0; i < amountOfLayer-1; i++)
 						{
-							for(int row = 0; row < der_Weights_b[i]->getRow(); row++)
+							for(int row1 = 0; row1 < der_Weights_b[i]->getRow(); row1++)
 							{
-								der_Weights_b[i]->setValue(row, 0, der_Weights_b[i]->getValue(row, 0)+err_term[amountOfLayer-2-i]->getValue(0, row));
+								der_Weights_b[i]->setValue(row1, 0, der_Weights_b[i]->getValue(row1, 0)+err_term[amountOfLayer-2-i]->getValue(0, row1));
 							}
 						}
 
@@ -752,11 +752,11 @@ void Network::train(Parameter* para)
 						}*/
 
 						//无隐层
-						for(int row = 0; row < der_Weights[0]->getRow(); row++)
+						for(int row1 = 0; row1 < der_Weights[0]->getRow(); row1++)
 						{
-							for(int col = 0; col < der_Weights[0]->getCol(); col++)
+							for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
 							{
-								der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[0]->getValue(0, row) * input_layer->getValue(0, col));
+								der_Weights[0]->setValue(row1, col1, der_Weights[0]->getValue(row1,col1)+err_term[0]->getValue(0, row1) * input_layer->getValue(0, col1));
 							}
 						}
 
@@ -933,9 +933,9 @@ void Network::train(Parameter* para)
 						//求导
 						for(int i = 0; i < amountOfLayer-1; i++)
 						{
-							for(int row = 0; row < der_Weights_b[i]->getRow(); row++)
+							for(int row1 = 0; row1 < der_Weights_b[i]->getRow(); row1++)
 							{
-								der_Weights_b[i]->setValue(row, 0, der_Weights_b[i]->getValue(row, 0)+err_term[amountOfLayer-2-i]->getValue(0, row));
+								der_Weights_b[i]->setValue(row1, 0, der_Weights_b[i]->getValue(row1, 0)+err_term[amountOfLayer-2-i]->getValue(0, row1));
 							}
 						}
 
@@ -956,11 +956,11 @@ void Network::train(Parameter* para)
 						}*/
 
 						//无隐层
-						for(int row = 0; row < der_Weights[0]->getRow(); row++)
+						for(int row1 = 0; row1 < der_Weights[0]->getRow(); row1++)
 						{
-							for(int col = 0; col < der_Weights[0]->getCol(); col++)
+							for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
 							{
-								der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[0]->getValue(0, row) * input_layer->getValue(0, col));
+								der_Weights[0]->setValue(row1, col1, der_Weights[0]->getValue(row1,col1)+err_term[0]->getValue(0, row1) * input_layer->getValue(0, col1));
 							}
 						}
 
@@ -1155,11 +1155,11 @@ void Network::train(Parameter* para)
 				}*/
 
 				//无隐层
-				for(int row = 0; row < der_Weights[0]->getRow(); row++)
+				for(int row1 = 0; row1 < der_Weights[0]->getRow(); row1++)
 				{
-					for(int col = 0; col < der_Weights[0]->getCol(); col++)
+					for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
 					{
-						der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[0]->getValue(0, row) * input_layer->getValue(0, col));
+						der_Weights[0]->setValue(row1, col1, der_Weights[0]->getValue(row1,col1)+err_term[0]->getValue(0, row1) * input_layer->getValue(0, col1));
 					}
 				}
 
