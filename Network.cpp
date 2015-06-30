@@ -569,7 +569,7 @@ void Network::train(Parameter* para)
 	if(true)
 	{
 		//W
-		for(int lay = 1; lay >= 0; lay--)
+		for(int lay = 0; lay >= 0; lay--)
 		{
 			for(int row = 0; row < weights[lay]->getRow(); row++)
 			{
@@ -774,7 +774,7 @@ void Network::train(Parameter* para)
 		}
 
 		//b
-		for(int lay = 1; lay >= 0; lay--)
+		for(int lay = 0; lay >= 0; lay--)
 		{
 			for(int row = 0; row < weights_b[lay]->getRow(); row++)
 			{
@@ -1195,7 +1195,7 @@ void Network::train(Parameter* para)
 		fout << endl;
 	}
 
-	fout << "Weights 2:" << endl;
+	/*fout << "Weights 2:" << endl;
 	for(int row = 0; row < weights[1]->getRow(); row++)
 	{
 		for(int col = 0; col < weights[1]->getCol(); col++)
@@ -1212,7 +1212,7 @@ void Network::train(Parameter* para)
 			fout << weights_b[1]->getValue(row, col) << " ";
 		}
 		fout << endl;
-	}
+	}*/
 
 	fout.close();
 }
