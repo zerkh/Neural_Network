@@ -437,7 +437,7 @@ void Network::train(Parameter* para)
 
 				for(int k = 0; k < err_term[1]->getCol(); k++)
 				{
-					result += err_term[1]->getValue(0, k) * weights[0]->getValue(k, i);
+					result += (err_term[1]->getValue(0, k) * weights[0]->getValue(k, i));
 				}
 
 				err_term[2]->setValue(0, i, result);
@@ -458,7 +458,7 @@ void Network::train(Parameter* para)
 			{
 				for(int col = 0; col < der_Weights[0]->getCol(); col++)
 				{
-					der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[1]->getValue(0, row) * v_train_data[j].first->getValue(0, col));
+					der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[1]->getValue(0, row) * input_layer->getValue(0, col));
 				}
 			}
 
@@ -552,14 +552,19 @@ void Network::train(Parameter* para)
 						Vector* output_layer;
 						Vector* pre_hidden_layer;
 						Vector* pre_output_layer;
+						Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 						double min_Loss = -1;
 						double add_Loss = -1;
 
+						for(int i = 0; i < dimOfLayers[0]; i++)
+						{
+							input_layer->setValue(0, i, v_train_data[j].first->getValue(0, i) - weights_i->getValue(0, i));
+						}
 
 						//g(theta+10^5)
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)+pow(10, -5));
 
-						pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
+						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
 						{
@@ -589,7 +594,7 @@ void Network::train(Parameter* para)
 
 						//g(theta-10^5)
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)-2*pow(10, -5));
-						pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
+						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
 						{
@@ -652,7 +657,7 @@ void Network::train(Parameter* para)
 							for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
 							{
 								//der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1) + lambda*weights[0]->getValue(row1,col1));
-								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1));
+								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * input_layer->getValue(0, col1));
 							}
 						}
 
@@ -693,14 +698,20 @@ void Network::train(Parameter* para)
 						Vector* output_layer;
 						Vector* pre_hidden_layer;
 						Vector* pre_output_layer;
+						Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 						double min_Loss = -1;
 						double add_Loss = -1;
 
 
-						//g(theta-10^+4)
+						//g(theta-10^+5)
 						weights_b[lay]->setValue(row, col, weights_b[lay]->getValue(row, col)+pow(10, -5));
 
-						pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
+						for(int i = 0; i < dimOfLayers[0]; i++)
+						{
+							input_layer->setValue(0, i, v_train_data[j].first->getValue(0, i) - weights_i->getValue(0, i));
+						}
+
+						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
 						{
@@ -727,9 +738,9 @@ void Network::train(Parameter* para)
 
 						add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 
-						//g(theta-10^-4)
+						//g(theta-10^-5)
 						weights_b[lay]->setValue(row, col, weights_b[lay]->getValue(row, col)-2*pow(10, -5));
-						pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
+						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
 						{
@@ -790,7 +801,7 @@ void Network::train(Parameter* para)
 						{
 							for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
 							{
-								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1));
+								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * input_layer->getValue(0, col1));
 							}
 						}
 
@@ -826,14 +837,19 @@ void Network::train(Parameter* para)
 				Vector* output_layer;
 				Vector* pre_hidden_layer;
 				Vector* pre_output_layer;
+				Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 				double min_Loss = -1;
 				double add_Loss = -1;
 
+				for(int i = 0; i < dimOfLayers[0]; i++)
+				{
+					input_layer->setValue(0, i, v_train_data[j].first->getValue(0, i) - weights_i->getValue(0, i));
+				}
 
 				//g(theta-10^+5)
-				v_train_data[j].first->setValue(0, col, v_train_data[j].first->getValue(0, col)+pow(10, -5));
+				input_layer->setValue(0, col, input_layer->getValue(0, col)+pow(10, -5));
 
-				pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
+				pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
 				for(int i = 0; i < pre_hidden_layer->getCol(); i++)
 				{
@@ -861,7 +877,7 @@ void Network::train(Parameter* para)
 				add_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
 
 				//g(theta-10^-5)
-				v_train_data[j].first->setValue(0, col, v_train_data[j].first->getValue(0, col) - 2*pow(10, -5));
+				input_layer->setValue(0, col, input_layer->getValue(0, col) - 2*pow(10, -5));
 				pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
 
 				for(int i = 0; i < pre_hidden_layer->getCol(); i++)
@@ -889,7 +905,7 @@ void Network::train(Parameter* para)
 				}
 
 				min_Loss = loss(output_layer->getValue(0, 0), v_train_data[j].second) + Regularization();
-				v_train_data[j].first->setValue(0, col, v_train_data[j].first->getValue(0, col)+pow(10, -5));
+				input_layer->setValue(0, col, input_layer->getValue(0, col)+pow(10, -5));
 
 				double g = (add_Loss-min_Loss) / (2*pow(10, -5));
 
@@ -936,7 +952,7 @@ void Network::train(Parameter* para)
 				{
 					for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
 					{
-						der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1));
+						der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * input_layer->getValue(0, col1));
 					}
 				}
 
