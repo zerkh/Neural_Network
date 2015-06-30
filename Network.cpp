@@ -2,7 +2,7 @@
 
 Network::Network(Parameter* para, WordVec* words)
 {
-	this->amountOfLayer = 3;
+	this->amountOfLayer = 2;
 	this->dimOfLayers = new int[amountOfLayer];
 	this->words = words;
 	this->lambda = 0.001;
@@ -13,8 +13,8 @@ Network::Network(Parameter* para, WordVec* words)
 	this->log_file.open("log_file", ios::out);
 
 	this->dimOfLayers[0] = words->getVecSize();
-	this->dimOfLayers[1] = 150;
-	this->dimOfLayers[2] = 1;
+	this->dimOfLayers[1] = 1;
+	//this->dimOfLayers[2] = 1;
 
 	//initialize weights
 	this->weights = new Vector*[this->amountOfLayer-1];
@@ -269,13 +269,13 @@ void Network::train(Parameter* para)
 			}
 		}
 
-		for(int row = 0; row < der_Weights[1]->getRow(); row++)
+		/*for(int row = 0; row < der_Weights[1]->getRow(); row++)
 		{
-			for(int col = 0; col < der_Weights[1]->getCol(); col++)
-			{
-				der_Weights[1]->setValue(row, col, 0);
-			}
+		for(int col = 0; col < der_Weights[1]->getCol(); col++)
+		{
+		der_Weights[1]->setValue(row, col, 0);
 		}
+		}*/
 
 
 		for(int col = 0; col < der_Input->getCol(); col++)
@@ -333,9 +333,9 @@ void Network::train(Parameter* para)
 		for(int j = 0; j < size; j++)
 		{
 			Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
-			Vector* hidden_layer;
+			//Vector* hidden_layer;
 			Vector* output_layer;
-			Vector* pre_hidden_layer;
+			//Vector* pre_hidden_layer;
 			Vector* pre_output_layer;
 			double pre_Loss = 0;
 
@@ -352,25 +352,38 @@ void Network::train(Parameter* para)
 				input_layer->setValue(0, col, v_train_data[j].first->getValue(0, col) - weights_i->getValue(0, col));
 			}
 
-			//hidden layer
-			pre_hidden_layer = input_layer->Multiply(weights[0], 1);
+			////hidden layer
+			//pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
-			for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-			{
-				pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-			}
-			hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-			for(int i = 0; i < hidden_layer->getCol(); i++)
-			{
-				hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-			}
+			//for(int i = 0; i < pre_hidden_layer->getCol(); i++)
+			//{
+			//	pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
+			//}
+			//hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
+			//for(int i = 0; i < hidden_layer->getCol(); i++)
+			//{
+			//	hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
+			//}
 
-			//output layer
-			pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+			////output layer
+			//pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+
+			//for(int i = 0; i < pre_output_layer->getCol(); i++)
+			//{
+			//	pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+			//}
+			//output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
+			//for(int i = 0; i < output_layer->getCol(); i++)
+			//{
+			//	output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
+			//}
+
+			//无隐层
+			pre_output_layer = input_layer->Multiply(weights[0], 1);
 
 			for(int i = 0; i < pre_output_layer->getCol(); i++)
 			{
-				pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+				pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 			}
 			output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 			for(int i = 0; i < output_layer->getCol(); i++)
@@ -423,25 +436,34 @@ void Network::train(Parameter* para)
 			err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0) - v_train_data[j].second) * (sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
 			//err_term of hidden layer
-			for(int i = 0; i < err_term[1]->getCol(); i++)
+			/*for(int i = 0; i < err_term[1]->getCol(); i++)
 			{
-				double result = sigmoid(pre_hidden_layer->getValue(0, i))-pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
-				result = result * err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
-				err_term[1]->setValue(0, i, result);
-			}
+			double result = sigmoid(pre_hidden_layer->getValue(0, i))-pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
+			result = result * err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+			err_term[1]->setValue(0, i, result);
+			}*/
 
 			//err_term of input layer
-			for(int i = 0; i < err_term[2]->getCol(); i++)
+			/*for(int i = 0; i < err_term[2]->getCol(); i++)
+			{
+			double result = 0;
+
+			for(int k = 0; k < err_term[1]->getCol(); k++)
+			{
+			result += (err_term[1]->getValue(0, k) * weights[0]->getValue(k, i));
+			}
+
+			err_term[2]->setValue(0, i, result);
+
+			der_Input->setValue(0, i, result);
+			}*/
+
+			//无隐层
+			for(int i = 0; i < err_term[1]->getCol(); i++)
 			{
 				double result = 0;
-
-				for(int k = 0; k < err_term[1]->getCol(); k++)
-				{
-					result += (err_term[1]->getValue(0, k) * weights[0]->getValue(k, i));
-				}
-
-				err_term[2]->setValue(0, i, result);
-
+				result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+				err_term[1]->setValue(0, i, result);
 				der_Input->setValue(0, i, result);
 			}
 
@@ -454,26 +476,35 @@ void Network::train(Parameter* para)
 				}
 			}
 
+			/*for(int row = 0; row < der_Weights[0]->getRow(); row++)
+			{
+			for(int col = 0; col < der_Weights[0]->getCol(); col++)
+			{
+			der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[1]->getValue(0, row) * input_layer->getValue(0, col));
+			}
+			}*/
+
+			/*for(int row = 0; row < der_Weights[1]->getRow(); row++)
+			{
+			for(int col = 0; col < der_Weights[1]->getCol(); col++)
+			{
+			der_Weights[1]->setValue(row, col, der_Weights[1]->getValue(row,col)+err_term[0]->getValue(0, row) * hidden_layer->getValue(0, col));
+			}
+			}*/
+
+			//无隐层
 			for(int row = 0; row < der_Weights[0]->getRow(); row++)
 			{
 				for(int col = 0; col < der_Weights[0]->getCol(); col++)
 				{
-					der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[1]->getValue(0, row) * input_layer->getValue(0, col));
-				}
-			}
-
-			for(int row = 0; row < der_Weights[1]->getRow(); row++)
-			{
-				for(int col = 0; col < der_Weights[1]->getCol(); col++)
-				{
-					der_Weights[1]->setValue(row, col, der_Weights[1]->getValue(row,col)+err_term[0]->getValue(0, row) * hidden_layer->getValue(0, col));
+					der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[0]->getValue(0, row) * input_layer->getValue(0, col));
 				}
 			}
 
 			cout << "Iteration:" << count << "\tData: " << j << endl;
 
-			delete hidden_layer;
-			delete pre_hidden_layer;
+			//delete hidden_layer;
+			//delete pre_hidden_layer;
 			delete output_layer;
 			delete pre_output_layer;
 			delete input_layer;
@@ -521,17 +552,17 @@ void Network::train(Parameter* para)
 
 	/*for(int j = 0; j < v_train_data.size(); j++)
 	{
-		for(int a = 0; a < posNote[j].size(); a++)
-		{
-			map<string, double*>::iterator m_it = words->m_words.find(posNote[j][a]);
+	for(int a = 0; a < posNote[j].size(); a++)
+	{
+	map<string, double*>::iterator m_it = words->m_words.find(posNote[j][a]);
 
-			for(int col = 0; col < this->dimOfLayers[0]; col++)
-			{
-				log_file << m_it->second[col] << endl;
-				m_it->second[col] -= (weights_i->getValue(0, col)/posNote[j].size());
-				log_file << m_it->second[col] << endl;
-			}
-		}
+	for(int col = 0; col < this->dimOfLayers[0]; col++)
+	{
+	log_file << m_it->second[col] << endl;
+	m_it->second[col] -= (weights_i->getValue(0, col)/posNote[j].size());
+	log_file << m_it->second[col] << endl;
+	}
+	}
 	}*/
 
 	//梯度检验
@@ -548,9 +579,9 @@ void Network::train(Parameter* para)
 
 					for(int j = v_train_data.size()-10; j < v_train_data.size(); j++)
 					{
-						Vector* hidden_layer;
+						//Vector* hidden_layer;
 						Vector* output_layer;
-						Vector* pre_hidden_layer;
+						//Vector* pre_hidden_layer;
 						Vector* pre_output_layer;
 						Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 						double min_Loss = -1;
@@ -564,24 +595,37 @@ void Network::train(Parameter* para)
 						//g(theta+10^5)
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)+pow(10, -5));
 
-						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
+						//pre_hidden_layer = input_layer->multiply(weights[0], 1);
 
-						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-						{
-							pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-						}
-						hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-						for(int i = 0; i < hidden_layer->getCol(); i++)
-						{
-							hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-						}
+						//for(int i = 0; i < pre_hidden_layer->getcol(); i++)
+						//{
+						//	pre_hidden_layer->setvalue(0, i, pre_hidden_layer->getvalue(0, i) + weights_b[0]->getvalue(i, 0));
+						//}
+						//hidden_layer = new vector(pre_hidden_layer->getrow(), pre_hidden_layer->getcol());
+						//for(int i = 0; i < hidden_layer->getcol(); i++)
+						//{
+						//	hidden_layer->setvalue(0, i, sigmoid(pre_hidden_layer->getvalue(0, i)));
+						//}
 
-						//output layer
-						pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+						////output layer
+						//pre_output_layer = hidden_layer->multiply(weights[1], 1);
+
+						//for(int i = 0; i < pre_output_layer->getcol(); i++)
+						//{
+						//	pre_output_layer->setvalue(0, i, pre_output_layer->getvalue(0, i) + weights_b[1]->getvalue(i, 0));
+						//}
+						//output_layer = new vector(pre_output_layer->getrow(), pre_output_layer->getcol());
+						//for(int i = 0; i < output_layer->getcol(); i++)
+						//{
+						//	output_layer->setvalue(0, i, sigmoid(pre_output_layer, i));
+						//}
+
+						//无隐层
+						pre_output_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_output_layer->getCol(); i++)
 						{
-							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 						}
 						output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 						for(int i = 0; i < output_layer->getCol(); i++)
@@ -594,25 +638,38 @@ void Network::train(Parameter* para)
 
 						//g(theta-10^5)
 						weights[lay]->setValue(row, col, weights[lay]->getValue(row, col)-2*pow(10, -5));
-						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
+						//pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
-						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-						{
-							pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-						}
-						hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-						for(int i = 0; i < hidden_layer->getCol(); i++)
-						{
-							hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-						}
+						//for(int i = 0; i < pre_hidden_layer->getCol(); i++)
+						//{
+						//	pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
+						//}
+						//hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
+						//for(int i = 0; i < hidden_layer->getCol(); i++)
+						//{
+						//	hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
+						//}
 
 
-						//output layer
-						pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+						////output layer
+						//pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+
+						//for(int i = 0; i < pre_output_layer->getCol(); i++)
+						//{
+						//	pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+						//}
+						//output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
+						//for(int i = 0; i < output_layer->getCol(); i++)
+						//{
+						//	output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
+						//}
+
+						//无隐层
+						pre_output_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_output_layer->getCol(); i++)
 						{
-							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 						}
 						output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 						for(int i = 0; i < output_layer->getCol(); i++)
@@ -634,13 +691,39 @@ void Network::train(Parameter* para)
 							err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 						}
 
-						err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0) - v_train_data[j].second)*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
+						//err_term of output layer
+						err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0) - v_train_data[j].second) * (sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
+						//err_term of hidden layer
+						/*for(int i = 0; i < err_term[1]->getCol(); i++)
+						{
+						double result = sigmoid(pre_hidden_layer->getValue(0, i))-pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
+						result = result * err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+						err_term[1]->setValue(0, i, result);
+						}*/
+
+						//err_term of input layer
+						/*for(int i = 0; i < err_term[2]->getCol(); i++)
+						{
+						double result = 0;
+
+						for(int k = 0; k < err_term[1]->getCol(); k++)
+						{
+						result += (err_term[1]->getValue(0, k) * weights[0]->getValue(k, i));
+						}
+
+						err_term[2]->setValue(0, i, result);
+
+						der_Input->setValue(0, i, result);
+						}*/
+
+						//无隐层
 						for(int i = 0; i < err_term[1]->getCol(); i++)
 						{
-							double result = sigmoid(pre_hidden_layer->getValue(0, i)) - pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
-							result *= (err_term[0]->getValue(0, 0)*weights[1]->getValue(0, i));
+							double result = 0;
+							result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
 							err_term[1]->setValue(0, i, result);
+							der_Input->setValue(0, i, result);
 						}
 
 						//求导
@@ -648,32 +731,39 @@ void Network::train(Parameter* para)
 						{
 							for(int row = 0; row < der_Weights_b[i]->getRow(); row++)
 							{
-								der_Weights_b[i]->setValue(row, 0, err_term[amountOfLayer-2-i]->getValue(0, row));
+								der_Weights_b[i]->setValue(row, 0, der_Weights_b[i]->getValue(row, 0)+err_term[amountOfLayer-2-i]->getValue(0, row));
 							}
 						}
 
-						for(int row1 = 0; row1 < der_Weights[0]->getRow(); row1++)
+						/*for(int row = 0; row < der_Weights[0]->getRow(); row++)
 						{
-							for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
-							{
-								//der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * v_train_data[j].first->getValue(0, col1) + lambda*weights[0]->getValue(row1,col1));
-								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * input_layer->getValue(0, col1));
-							}
+						for(int col = 0; col < der_Weights[0]->getCol(); col++)
+						{
+						der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[1]->getValue(0, row) * input_layer->getValue(0, col));
 						}
+						}*/
 
-						for(int row1 = 0; row1 < der_Weights[1]->getRow(); row1++)
+						/*for(int row = 0; row < der_Weights[1]->getRow(); row++)
 						{
-							for(int col1 = 0; col1 < der_Weights[1]->getCol(); col1++)
+						for(int col = 0; col < der_Weights[1]->getCol(); col++)
+						{
+						der_Weights[1]->setValue(row, col, der_Weights[1]->getValue(row,col)+err_term[0]->getValue(0, row) * hidden_layer->getValue(0, col));
+						}
+						}*/
+
+						//无隐层
+						for(int row = 0; row < der_Weights[0]->getRow(); row++)
+						{
+							for(int col = 0; col < der_Weights[0]->getCol(); col++)
 							{
-								//der_Weights[1]->setValue(row1, col1, err_term[0]->getValue(0, row1) * hidden_layer->getValue(0, col1) + lambda*weights[1]->getValue(row1,col1));
-								der_Weights[1]->setValue(row1, col1, err_term[0]->getValue(0, row1) * hidden_layer->getValue(0, col1));
+								der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[0]->getValue(0, row) * input_layer->getValue(0, col));
 							}
 						}
 
 						log_file << g << "||" << der_Weights[lay]->getValue(row, col) << " " << endl;
 
-						delete hidden_layer;
-						delete pre_hidden_layer;
+						//delete hidden_layer;
+						//delete pre_hidden_layer;
 						delete output_layer;
 						delete pre_output_layer;
 					}
@@ -694,9 +784,9 @@ void Network::train(Parameter* para)
 
 					for(int j = v_train_data.size()-10; j < v_train_data.size(); j++)
 					{
-						Vector* hidden_layer;
+						//Vector* hidden_layer;
 						Vector* output_layer;
-						Vector* pre_hidden_layer;
+						//Vector* pre_hidden_layer;
 						Vector* pre_output_layer;
 						Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 						double min_Loss = -1;
@@ -711,24 +801,37 @@ void Network::train(Parameter* para)
 							input_layer->setValue(0, i, v_train_data[j].first->getValue(0, i) - weights_i->getValue(0, i));
 						}
 
-						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
+						//pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
-						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-						{
-							pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-						}
-						hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-						for(int i = 0; i < hidden_layer->getCol(); i++)
-						{
-							hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-						}
+						//for(int i = 0; i < pre_hidden_layer->getCol(); i++)
+						//{
+						//	pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
+						//}
+						//hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
+						//for(int i = 0; i < hidden_layer->getCol(); i++)
+						//{
+						//	hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
+						//}
 
-						//output layer
-						pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+						////output layer
+						//pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+
+						//for(int i = 0; i < pre_output_layer->getCol(); i++)
+						//{
+						//	pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+						//}
+						//output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
+						//for(int i = 0; i < output_layer->getCol(); i++)
+						//{
+						//	output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
+						//}
+
+						//无隐层
+						pre_output_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_output_layer->getCol(); i++)
 						{
-							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 						}
 						output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 						for(int i = 0; i < output_layer->getCol(); i++)
@@ -740,25 +843,38 @@ void Network::train(Parameter* para)
 
 						//g(theta-10^-5)
 						weights_b[lay]->setValue(row, col, weights_b[lay]->getValue(row, col)-2*pow(10, -5));
-						pre_hidden_layer = input_layer->Multiply(weights[0], 1);
+						//pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
-						for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-						{
-							pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-						}
-						hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-						for(int i = 0; i < hidden_layer->getCol(); i++)
-						{
-							hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-						}
+						//for(int i = 0; i < pre_hidden_layer->getCol(); i++)
+						//{
+						//	pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
+						//}
+						//hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
+						//for(int i = 0; i < hidden_layer->getCol(); i++)
+						//{
+						//	hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
+						//}
 
 
-						//output layer
-						pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+						////output layer
+						//pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+
+						//for(int i = 0; i < pre_output_layer->getCol(); i++)
+						//{
+						//	pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+						//}
+						//output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
+						//for(int i = 0; i < output_layer->getCol(); i++)
+						//{
+						//	output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
+						//}
+
+						//无隐层
+						pre_output_layer = input_layer->Multiply(weights[0], 1);
 
 						for(int i = 0; i < pre_output_layer->getCol(); i++)
 						{
-							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+							pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 						}
 						output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 						for(int i = 0; i < output_layer->getCol(); i++)
@@ -779,13 +895,39 @@ void Network::train(Parameter* para)
 							err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 						}
 
-						err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0) - v_train_data[j].second)*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
+						//err_term of output layer
+						err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0) - v_train_data[j].second) * (sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
+						//err_term of hidden layer
+						/*for(int i = 0; i < err_term[1]->getCol(); i++)
+						{
+						double result = sigmoid(pre_hidden_layer->getValue(0, i))-pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
+						result = result * err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+						err_term[1]->setValue(0, i, result);
+						}*/
+
+						//err_term of input layer
+						/*for(int i = 0; i < err_term[2]->getCol(); i++)
+						{
+						double result = 0;
+
+						for(int k = 0; k < err_term[1]->getCol(); k++)
+						{
+						result += (err_term[1]->getValue(0, k) * weights[0]->getValue(k, i));
+						}
+
+						err_term[2]->setValue(0, i, result);
+
+						der_Input->setValue(0, i, result);
+						}*/
+
+						//无隐层
 						for(int i = 0; i < err_term[1]->getCol(); i++)
 						{
-							double result = sigmoid(pre_hidden_layer->getValue(0, i)) - pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
-							result *= (err_term[0]->getValue(0, 0)*weights[1]->getValue(0, i));
+							double result = 0;
+							result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
 							err_term[1]->setValue(0, i, result);
+							der_Input->setValue(0, i, result);
 						}
 
 						//求导
@@ -793,30 +935,39 @@ void Network::train(Parameter* para)
 						{
 							for(int row = 0; row < der_Weights_b[i]->getRow(); row++)
 							{
-								der_Weights_b[i]->setValue(row, 0, err_term[amountOfLayer-2-i]->getValue(0, row));
+								der_Weights_b[i]->setValue(row, 0, der_Weights_b[i]->getValue(row, 0)+err_term[amountOfLayer-2-i]->getValue(0, row));
 							}
 						}
 
-						for(int row1 = 0; row1 < der_Weights[0]->getRow(); row1++)
+						/*for(int row = 0; row < der_Weights[0]->getRow(); row++)
 						{
-							for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
-							{
-								der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * input_layer->getValue(0, col1));
-							}
+						for(int col = 0; col < der_Weights[0]->getCol(); col++)
+						{
+						der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[1]->getValue(0, row) * input_layer->getValue(0, col));
 						}
+						}*/
 
-						for(int row1 = 0; row1 < der_Weights[1]->getRow(); row1++)
+						/*for(int row = 0; row < der_Weights[1]->getRow(); row++)
 						{
-							for(int col1 = 0; col1 < der_Weights[1]->getCol(); col1++)
+						for(int col = 0; col < der_Weights[1]->getCol(); col++)
+						{
+						der_Weights[1]->setValue(row, col, der_Weights[1]->getValue(row,col)+err_term[0]->getValue(0, row) * hidden_layer->getValue(0, col));
+						}
+						}*/
+
+						//无隐层
+						for(int row = 0; row < der_Weights[0]->getRow(); row++)
+						{
+							for(int col = 0; col < der_Weights[0]->getCol(); col++)
 							{
-								der_Weights[1]->setValue(row1, col1, err_term[0]->getValue(0, row1) * hidden_layer->getValue(0, col1));
+								der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[0]->getValue(0, row) * input_layer->getValue(0, col));
 							}
 						}
 
 						log_file << g << "||" << der_Weights_b[lay]->getValue(row, col) << " " << endl;
 
-						delete hidden_layer;
-						delete pre_hidden_layer;
+						//delete hidden_layer;
+						//delete pre_hidden_layer;
 						delete output_layer;
 						delete pre_output_layer;
 					}
@@ -833,9 +984,9 @@ void Network::train(Parameter* para)
 
 			for(int j = v_train_data.size()-10; j < v_train_data.size(); j++)
 			{
-				Vector* hidden_layer;
+				//Vector* hidden_layer;
 				Vector* output_layer;
-				Vector* pre_hidden_layer;
+				//Vector* pre_hidden_layer;
 				Vector* pre_output_layer;
 				Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 				double min_Loss = -1;
@@ -849,24 +1000,37 @@ void Network::train(Parameter* para)
 				//g(theta-10^+5)
 				input_layer->setValue(0, col, input_layer->getValue(0, col)+pow(10, -5));
 
-				pre_hidden_layer = input_layer->Multiply(weights[0], 1);
+				//pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 
-				for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-				{
-					pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-				}
-				hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-				for(int i = 0; i < hidden_layer->getCol(); i++)
-				{
-					hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-				}
+				//for(int i = 0; i < pre_hidden_layer->getCol(); i++)
+				//{
+				//	pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
+				//}
+				//hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
+				//for(int i = 0; i < hidden_layer->getCol(); i++)
+				//{
+				//	hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
+				//}
 
-				//output layer
-				pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+				////output layer
+				//pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+
+				//for(int i = 0; i < pre_output_layer->getCol(); i++)
+				//{
+				//	pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+				//}
+				//output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
+				//for(int i = 0; i < output_layer->getCol(); i++)
+				//{
+				//	output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
+				//}
+
+				//无隐层
+				pre_output_layer = input_layer->Multiply(weights[0], 1);
 
 				for(int i = 0; i < pre_output_layer->getCol(); i++)
 				{
-					pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+					pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 				}
 				output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 				for(int i = 0; i < output_layer->getCol(); i++)
@@ -878,25 +1042,38 @@ void Network::train(Parameter* para)
 
 				//g(theta-10^-5)
 				input_layer->setValue(0, col, input_layer->getValue(0, col) - 2*pow(10, -5));
-				pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
+				//pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
 
-				for(int i = 0; i < pre_hidden_layer->getCol(); i++)
-				{
-					pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
-				}
-				hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
-				for(int i = 0; i < hidden_layer->getCol(); i++)
-				{
-					hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
-				}
+				//for(int i = 0; i < pre_hidden_layer->getCol(); i++)
+				//{
+				//	pre_hidden_layer->setValue(0, i, pre_hidden_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
+				//}
+				//hidden_layer = new Vector(pre_hidden_layer->getRow(), pre_hidden_layer->getCol());
+				//for(int i = 0; i < hidden_layer->getCol(); i++)
+				//{
+				//	hidden_layer->setValue(0, i, sigmoid(pre_hidden_layer->getValue(0, i)));
+				//}
 
 
-				//output layer
-				pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+				////output layer
+				//pre_output_layer = hidden_layer->Multiply(weights[1], 1);
+
+				//for(int i = 0; i < pre_output_layer->getCol(); i++)
+				//{
+				//	pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+				//}
+				//output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
+				//for(int i = 0; i < output_layer->getCol(); i++)
+				//{
+				//	output_layer->setValue(0, i, sigmoid(pre_output_layer, i));
+				//}
+
+				//无隐层
+				pre_output_layer = input_layer->Multiply(weights[0], 1);
 
 				for(int i = 0; i < pre_output_layer->getCol(); i++)
 				{
-					pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[1]->getValue(i, 0));
+					pre_output_layer->setValue(0, i, pre_output_layer->getValue(0, i) + weights_b[0]->getValue(i, 0));
 				}
 				output_layer = new Vector(pre_output_layer->getRow(), pre_output_layer->getCol());
 				for(int i = 0; i < output_layer->getCol(); i++)
@@ -917,26 +1094,39 @@ void Network::train(Parameter* para)
 					err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 				}
 
-				err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0) - v_train_data[j].second)*(sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
+				//err_term of output layer
+				err_term[0]->setValue(0, 0, (output_layer->getValue(0, 0) - v_train_data[j].second) * (sigmoid(pre_output_layer->getValue(0, 0))-pow(sigmoid(pre_output_layer->getValue(0, 0)), 2)));
 
-				for(int i = 0; i < err_term[1]->getCol(); i++)
+				//err_term of hidden layer
+				/*for(int i = 0; i < err_term[1]->getCol(); i++)
 				{
-					double result = sigmoid(pre_hidden_layer->getValue(0, i)) - pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
-					result *= (err_term[0]->getValue(0, 0)*weights[1]->getValue(0, i));
-					err_term[1]->setValue(0, i, result);
-				}
+				double result = sigmoid(pre_hidden_layer->getValue(0, i))-pow(sigmoid(pre_hidden_layer->getValue(0, i)), 2);
+				result = result * err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+				err_term[1]->setValue(0, i, result);
+				}*/
 
 				//err_term of input layer
-				for(int i = 0; i < err_term[2]->getCol(); i++)
+				/*for(int i = 0; i < err_term[2]->getCol(); i++)
+				{
+				double result = 0;
+
+				for(int k = 0; k < err_term[1]->getCol(); k++)
+				{
+				result += (err_term[1]->getValue(0, k) * weights[0]->getValue(k, i));
+				}
+
+				err_term[2]->setValue(0, i, result);
+
+				der_Input->setValue(0, i, result);
+				}*/
+
+				//无隐层
+				for(int i = 0; i < err_term[1]->getCol(); i++)
 				{
 					double result = 0;
-
-					for(int k = 0; k < err_term[1]->getCol(); k++)
-					{
-						result += err_term[1]->getValue(0, k) * weights[0]->getValue(k, i);
-					}
-
-					err_term[2]->setValue(0, i, result);
+					result += err_term[0]->getValue(0, 0) * weights[1]->getValue(0, i);
+					err_term[1]->setValue(0, i, result);
+					der_Input->setValue(0, i, result);
 				}
 
 				//求导
@@ -944,30 +1134,39 @@ void Network::train(Parameter* para)
 				{
 					for(int row = 0; row < der_Weights_b[i]->getRow(); row++)
 					{
-						der_Weights_b[i]->setValue(row, 0, err_term[amountOfLayer-2-i]->getValue(0, row));
+						der_Weights_b[i]->setValue(row, 0, der_Weights_b[i]->getValue(row, 0)+err_term[amountOfLayer-2-i]->getValue(0, row));
 					}
 				}
 
-				for(int row1 = 0; row1 < der_Weights[0]->getRow(); row1++)
+				/*for(int row = 0; row < der_Weights[0]->getRow(); row++)
 				{
-					for(int col1 = 0; col1 < der_Weights[0]->getCol(); col1++)
-					{
-						der_Weights[0]->setValue(row1, col1, err_term[1]->getValue(0, row1) * input_layer->getValue(0, col1));
-					}
-				}
-
-				for(int row1 = 0; row1 < der_Weights[1]->getRow(); row1++)
+				for(int col = 0; col < der_Weights[0]->getCol(); col++)
 				{
-					for(int col1 = 0; col1 < der_Weights[1]->getCol(); col1++)
+				der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[1]->getValue(0, row) * input_layer->getValue(0, col));
+				}
+				}*/
+
+				/*for(int row = 0; row < der_Weights[1]->getRow(); row++)
+				{
+				for(int col = 0; col < der_Weights[1]->getCol(); col++)
+				{
+				der_Weights[1]->setValue(row, col, der_Weights[1]->getValue(row,col)+err_term[0]->getValue(0, row) * hidden_layer->getValue(0, col));
+				}
+				}*/
+
+				//无隐层
+				for(int row = 0; row < der_Weights[0]->getRow(); row++)
+				{
+					for(int col = 0; col < der_Weights[0]->getCol(); col++)
 					{
-						der_Weights[1]->setValue(row1, col1, err_term[0]->getValue(0, row1) * hidden_layer->getValue(0, col1));
+						der_Weights[0]->setValue(row, col, der_Weights[0]->getValue(row,col)+err_term[0]->getValue(0, row) * input_layer->getValue(0, col));
 					}
 				}
 
-				log_file << g << "||" << err_term[2]->getValue(0, col) << " " << endl;
+				log_file << g << "||" << err_term[1]->getValue(0, col) << " " << endl;
 
-				delete hidden_layer;
-				delete pre_hidden_layer;
+				//delete hidden_layer;
+				//delete pre_hidden_layer;
 				delete output_layer;
 				delete pre_output_layer;
 			}
