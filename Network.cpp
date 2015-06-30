@@ -685,8 +685,8 @@ void Network::train(Parameter* para)
 
 
 						//feed-backward
-						Vector** err_term = new Vector*[this->amountOfLayer];
-						for(int i = 0 ; i < amountOfLayer; i++)
+						Vector** err_term = new Vector*[this->amountOfLayer-1];
+						for(int i = 0 ; i < amountOfLayer-1; i++)
 						{
 							err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 						}
@@ -889,8 +889,8 @@ void Network::train(Parameter* para)
 
 
 						//feed-backward
-						Vector** err_term = new Vector*[this->amountOfLayer];
-						for(int i = 0 ; i < amountOfLayer; i++)
+						Vector** err_term = new Vector*[this->amountOfLayer-1];
+						for(int i = 0 ; i < amountOfLayer-1; i++)
 						{
 							err_term[i] = new Vector(1, this->dimOfLayers[this->amountOfLayer-1-i]);
 						}
