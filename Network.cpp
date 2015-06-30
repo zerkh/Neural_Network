@@ -519,7 +519,7 @@ void Network::train(Parameter* para)
 		count++;
 	}
 
-	for(int j = 0; j < v_train_data.size(); j++)
+	/*for(int j = 0; j < v_train_data.size(); j++)
 	{
 		for(int a = 0; a < posNote[j].size(); a++)
 		{
@@ -532,7 +532,7 @@ void Network::train(Parameter* para)
 				log_file << m_it->second[col] << endl;
 			}
 		}
-	}
+	}*/
 
 	//ÌÝ¶È¼ìÑé
 	if(true)
@@ -1034,10 +1034,17 @@ void Network::test(Parameter* para)
 		Vector* output_layer;
 		Vector* pre_hidden_layer;
 		Vector* pre_output_layer;
+		Vector* input_layer = new Vector(1, this->dimOfLayers[0]);
 
 		//feed-forward
+
+		for(int col = 0; col < this->dimOfLayers[0]; col++)
+		{
+			input_layer->setValue(0, col, v_train_data[j].first->getValue(0, col) - weights_i->getValue(0, col));
+		}
+
 		//hidden layer
-		pre_hidden_layer = v_train_data[j].first->Multiply(weights[0], 1);
+		pre_hidden_layer = input_layer->Multiply(weights[0], 1);
 		//transpos delete
 		for(int i = 0; i < pre_hidden_layer->getCol(); i++)
 		{
